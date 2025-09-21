@@ -2,7 +2,7 @@ name: Publish Image
 
 on:
   push:
-#    tags: [ 'v*.*.*' ]
+    tags: [ 'v*.*.*' ]
 
 env:
   REGISTRY: ghcr.io
@@ -45,5 +45,5 @@ jobs:
 
       - name: Tag and Push Image to GHCR
         run: |
-          docker tag sre.k8s.hello ghcr.io/${{ github.repository }}/sre.k8s.hello:latest
-          docker push ghcr.io/${{ github.repository }}/sre.k8s.hello:latest
+          docker tag sre-k8s-hello ghcr.io/${{ github.repository }}/sre-k8s-hello:latest
+          docker push ghcr.io/${{ github.repository }}/sre-k8s-hello:latest
