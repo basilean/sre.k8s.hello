@@ -66,3 +66,16 @@ service:
 ```
 http://localhost:5000/swagger/index.html
 ```
+
+# Podman
+Uses host network to make it easy.
+
+Bring up a collector.
+```bash
+podman run --rm -ti --replace --name otel --network host -v ./otel.conf:/etc/otelcol/config.yaml:ro docker.io/otel/opentelemetry-collector:latest --config /etc/otelcol/config.yaml
+```
+
+Bring up hello world.
+```bash
+podman run -ti --replace --name hello --network host ghcr.io/basilean/sre.k8s.hello/sre-k8s-hello:latest
+```
