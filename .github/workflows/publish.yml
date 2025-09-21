@@ -1,0 +1,49 @@
+name: Publish Image
+
+on:
+  push:
+#    tags: [ 'v*.*.*' ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          source-url: "https://nuget.pkg.github.com/basilean/index.json"
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Publish Container Image
+        run: dotnet publish -c Release -r linux-x64 /p:PublishAot=true /t:PublishContainer
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and Push Image to GHCR
+        run: |
+          docker tag sre.k8s.hello ghcr.io/${{ github.repository }}/sre.k8s.hello:latest
+          docker push ghcr.io/${{ github.repository }}/sre.k8s.hello:latest
